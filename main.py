@@ -1,28 +1,23 @@
 import requests
 from bs4 import BeautifulSoup
 
-WIKI = 'https://iceandfire.fandom.com/wiki/'  # adresse du wiki
+WIKI_URL = 'https://iceandfire.fandom.com/wiki/'  # adresse du wiki
 SEPARATOR = ','  # Séparateur dans le fichier de sauvegarde
 
 
 # Supprimer les doublons ?!
 def liste_liens(source):
-    html = requests.get(WIKI + source).text
+    html = requests.get(WIKI_URL + source).text
     body = BeautifulSoup(html, 'html.parser').find('div', id='mw-content-text')
-    i = 0
     links = []
-    for link in body.find_all('a'):
-        src = link.get('href')
-        if '/wiki/' == src[:6]:
-            if not (':' in src[6:]):
-                links.append(src[6:])
-                i += 1
-        elif 'https://iceandfire.fandom.com/wiki/' == src[:35]:
-            if not (':' in src[35:]):
-                links.append(src[35:])
-                i += 1
-    print("nombre de liens :", i)
+    for anchor in body.find_all('a'):
+        link = anchor.get('href')
+        if link.startswith('/wiki/') and ':' not in link[len('/wiki/'):]:  # Si le nom de la page ne contient pas un ':'
+            links.append(link[len('/wiki/'):])
+        elif link.startswith(WIKI_URL) and ':' not in link[len(WIKI_URL):]:
+            links.append(link[len(WIKI_URL):])
     return links
+
 
 def svg_dico(dico, file):
     s = ""
@@ -47,11 +42,9 @@ def chg_dico(file):
 
 
 def svg_wiki(dico, file):
-    s = ""
-
-    #Page qui se renvoie l'une vers l'autre
+    return 0
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    liste_liens("Petyr_Baelish")
+    svg_dico({"Petyr_Baelish": liste_liens("Petyr_Baelish")}, "sauv.txt")
