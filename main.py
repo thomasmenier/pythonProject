@@ -24,7 +24,7 @@ def liste_liens(source):
     print("nombre de liens :", i)
     return links
 
-
+print()
 def svg_dico(dico, file):
     s = ""
     for page in dico:
