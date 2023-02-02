@@ -4,10 +4,10 @@ import requests
 from bs4 import BeautifulSoup
 
 WIKI_URL = 'https://iceandfire.fandom.com/wiki/'  # adresse du wiki
-SEPARATOR = ','  # Séparateur dans le fichier de sauvegarde
+SEPARATOR = "', "  # séparateur du fichier
 
 
-# Supprimer les doublons ?!
+# Supprimer les doublons lors de l'ajout?!
 def liste_liens(source):
     links = []
     html = requests.get(WIKI_URL + source).text
@@ -21,20 +21,17 @@ def liste_liens(source):
     return links
 
 
-def svg_dico(dico, file):
+# def svg_dico2(dico, file):  # Il faut créer une nouvelle classe dico qui l'hérite pour changer le str()
+#     with open(file, "w") as f:
+#         f.write(str(dico))
+
+
+def svg_dico(dico, file): # Un peu de la bidouille
     s = ""
     for page in dico:
-        s += page
-        for link in dico[page]:
-            s += SEPARATOR + link
-        s += "\n"
+        s += page + SEPARATOR + str(dico[page])[1:-2] + "\n"
     with open(file, "w") as f:
         f.write(s)
-
-
-def svg_dico_json(dico, file):
-    with open(file, "w") as f:
-        json.dump(dico, f)
 
 
 def chg_dico(file):
@@ -46,14 +43,19 @@ def chg_dico(file):
     return dico
 
 
+def svg_dico_json(dico, file):  # si on peut utiliser les json
+    with open(file, "w") as f:
+        json.dump(dico, f)
+
+
 def chg_dico_json(file):
     with open(file) as f:
         return json.load(f)
 
 
-def svg_wiki(dico, file):
+def svg_wiki(dico, file):  # Question 4 à faire
     return 0
 
 
 if __name__ == '__main__':
-    svg_dico_json({"Petyr_Baelish": liste_liens("Petyr_Baelish")}, "sauv_json.txt")
+    svg_dico({"Petyr_Baelish": liste_liens("Petyr_Baelish"), "Harrenhal": liste_liens("Harrenhal")}, "sauv.txt")
