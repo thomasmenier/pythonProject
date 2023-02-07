@@ -1,18 +1,16 @@
 import json
-
 import requests
 from bs4 import BeautifulSoup
 
 WIKI_URL = 'https://iceandfire.fandom.com/wiki/'  # adresse du wiki
-SEPARATOR = "', "  # séparateur du fichier
 
 
 # Supprimer les doublons lors de l'ajout?!
 def liste_liens(source):
     links = []
     html = requests.get(WIKI_URL + source).text
-    body = BeautifulSoup(html, 'html.parser').find('div', id='mw-content-text')
-    for anchor in body.find_all('a'):
+    soup = BeautifulSoup(html, 'html.parser').find('div', id='mw-content-text')
+    for anchor in soup.find_all('a'):
         link = anchor.get('href')
         if link.startswith('/wiki/') and ':' not in link[len('/wiki/'):]:
             links.append(link[len('/wiki/'):])
@@ -21,41 +19,32 @@ def liste_liens(source):
     return links
 
 
-# def svg_dico2(dico, file):  # Il faut créer une nouvelle classe dico qui l'hérite pour changer le str()
-#     with open(file, "w") as f:
-#         f.write(str(dico))
-
-
-def svg_dico(dico, file): # Un peu de la bidouille
-    s = ""
-    for page in dico:
-        s += page + SEPARATOR + str(dico[page])[1:-2] + "\n"
-    with open(file, "w") as f:
-        f.write(s)
-
-
-def chg_dico(file):
-    dico = {}
-    with open(file) as f:
-        for line in f.readlines():
-            line.split(SEPARATOR)
-            dico[line[0]] = line[1:]
-    return dico
-
-
-def svg_dico_json(dico, file):  # si on peut utiliser les json
+def svg_dico(dico, file):
     with open(file, "w") as f:
         json.dump(dico, f)
 
 
-def chg_dico_json(file):
-    with open(file) as f:
+def chg_dico(file):
+    with open(file, "r") as f:
         return json.load(f)
 
 
-def svg_wiki(dico, file):  # Question 4 à faire
-    return 0
+# Algorithme de parcours en largeur d'un graphe :
+# https://fr.wikipedia.org/wiki/Algorithme_de_parcours_en_largeur
+def svg_wiki(src, file):
+    wiki = {}
+    queue = [src]
+    explored = [src]
+    while queue:
+        webpage = queue.pop(0)
+        wiki[webpage] = liste_liens(webpage)
+        for link in wiki[webpage]:
+            if link not in explored:
+                queue.append(link)
+                explored.append(link)
+    svg_dico(wiki, file)
 
 
-if __name__ == '__main__':
-    svg_dico({"Petyr_Baelish": liste_liens("Petyr_Baelish"), "Harrenhal": liste_liens("Harrenhal")}, "sauv.txt")
+if __name__ == '__main__':  # svg_wiki("Petyr_Baelish", "sauv.json")
+    s = "https://iceandfire.fandom.com/wiki/Special:Search?query=liste&scope=internal&navigationSearch=true"
+    print(s)
