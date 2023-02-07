@@ -24,7 +24,10 @@ def liste_liens(source):
     print("nombre de liens :", i)
     return links
 
+
 print()
+
+
 def svg_dico(dico, file):
     s = ""
     for page in dico:
@@ -50,7 +53,7 @@ def chg_dico(file):
 def svg_wiki(dico, file):
     s = ""
 
-    #Page qui se renvoie l'une vers l'autre
+    # Page qui se renvoie l'une vers l'autre
 
 
 # Press the green button in the gutter to run the script.
