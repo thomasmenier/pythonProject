@@ -18,7 +18,7 @@ def liste_liens(source):
             links.append(link[len('/wiki/'):])
         elif link.startswith(WIKI_URL) and ':' not in link[len(WIKI_URL):]:
             links.append(link[len(WIKI_URL):])
-    return links
+    return list(set(links))  # On retourne une liste sans doublon
 
 
 # def svg_dico2(dico, file):  # Il faut créer une nouvelle classe dico qui l'hérite pour changer le str()
@@ -26,11 +26,12 @@ def liste_liens(source):
 #         f.write(str(dico))
 
 
-def svg_dico(dico, file): # Un peu de la bidouille
+def svg_dico(dico, file):  # Un peu de la bidouille
     s = ""
     for page in dico:
         s += page + SEPARATOR + str(dico[page])[1:-2] + "\n"
-    with open(file, "w") as f:
+    s += "\n"
+    with open(file, "a") as f:
         f.write(s)
 
 
@@ -53,8 +54,27 @@ def chg_dico_json(file):
         return json.load(f)
 
 
-def svg_wiki(dico, file):  # Question 4 à faire
-    return 0
+def list_page_wiki(source):
+    listelien = []
+    liste_liens(source)
+    for
+        if link not in listelien:
+            listepage.extends(link)
+
+def list_page_wiki_aux(source):
+    liste_liens(source)
+    for
+        if link not in listelien:
+            listepage.extends(link)
+
+
+
+def svg_wiki(source, file):  # Question 4 à faire
+    for page in list_page_wiki(source):
+        svg_dico({page: liste_liens(page)})
+
+
+# Faire la liste de tous les liens sans redondances puis faire parcourir les sources
 
 
 if __name__ == '__main__':
