@@ -1,58 +1,49 @@
+import json
 import requests
 from bs4 import BeautifulSoup
 
-WIKI = 'https://iceandfire.fandom.com/wiki/'  # adresse du wiki
-SEPARATOR = ','  # Séparateur dans le fichier de sauvegarde
+WIKI_URL = 'https://iceandfire.fandom.com/wiki/'  # adresse du wiki
 
 
-# Supprimer les doublons ?!
+# Supprimer les doublons lors de l'ajout?!
 def liste_liens(source):
-    html = requests.get(WIKI + source).text
-    body = BeautifulSoup(html, 'html.parser').find('div', id='mw-content-text')
-    i = 0
     links = []
-    for link in body.find_all('a'):
-        src = link.get('href')
-        if '/wiki/' == src[:6]:
-            if not (':' in src[6:]):
-                links.append(src[6:])
-                i += 1
-        elif 'https://iceandfire.fandom.com/wiki/' == src[:35]:
-            if not (':' in src[35:]):
-                links.append(src[35:])
-                i += 1
-    print("nombre de liens :", i)
+    html = requests.get(WIKI_URL + source).text
+    soup = BeautifulSoup(html, 'html.parser').find('div', id='mw-content-text')
+    for anchor in soup.find_all('a'):
+        link = anchor.get('href')
+        if link.startswith('/wiki/') and ':' not in link[len('/wiki/'):]:
+            links.append(link[len('/wiki/'):])
+        elif link.startswith(WIKI_URL) and ':' not in link[len(WIKI_URL):]:
+            links.append(link[len(WIKI_URL):])
     return links
 
-print()
+
 def svg_dico(dico, file):
-    s = ""
-    for page in dico:
-        s += page
-        for link in dico[page]:
-            s += SEPARATOR + link
-        s += "\n"
-    f = open(file, "w")
-    f.write(s)
-    f.close()
+    with open(file, "w") as f:
+        json.dump(dico, f)
 
 
-def chg_dico(file):
-    dico = {}
-    f = open(file)
-    for line in f.readlines():
-        line.split(SEPARATOR)
-        dico[line[0]] = line[1:]
-    f.close()
-    return dico
+def chg_disco(file):
+    with open(file, "r") as f:
+        return json.load(f)
 
 
-def svg_wiki(dico, file):
-    s = ""
+# Algorithme de parcours en largeur d'un graphe :
+# https://fr.wikipedia.org/wiki/Algorithme_de_parcours_en_largeur
+def svg_wiki(src, file):
+    wiki = {}
+    queue = [src]
+    while queue:
+        page = queue.pop(0)
+        wiki[page] = liste_liens(page)
+        for link in wiki[page]:
+            if link not in wiki.keys():
+                queue.append(link)
+    svg_dico(wiki, file)
 
-    #Page qui se renvoie l'une vers l'autre
 
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    liste_liens("Petyr_Baelish")
+    svg_wiki("Petyr_Baelish", "sauv.json")
+    # s = "https://iceandfire.fandom.com/wiki/Special:Search?query=liste&scope=internal&navigationSearch=true"
+    # print(s)
