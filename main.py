@@ -3,6 +3,7 @@ import requests
 from bs4 import BeautifulSoup
 
 WIKI_URL = 'https://iceandfire.fandom.com/wiki/'  # adresse du wiki
+SRC = 'Petyr_Baelish'
 
 
 # Supprimer les doublons lors de l'ajout?!
@@ -43,7 +44,34 @@ def svg_wiki(src, file):
     svg_dico(wiki, file)
 
 
+# Le parcours; chaque élément n'a qu'un seul parent
+def parcours_largeur(wiki):
+    parents = {}  # Faire avec une liste ou un dico ?
+    queue = [SRC]  # Autorisé ?
+    explored = []
+    while queue:
+        page = queue.pop(0)
+        explored.append(page)
+        for link in wiki[page]:
+            if link not in explored:
+                parents[link] = page
+                queue.append(link)
+    return parents
+
+
+# reconstitution du chemin à partir du tableau des provenances
+# def plus_court_chemin(dest, provenance):
+
+
+def plus_court_chemin_rec(src, dest, parents):
+    if src == dest:
+        return [src]
+    return plus_court_chemin_rec(parents[dest], parents).append(dest)
+
+
 if __name__ == '__main__':
-    svg_wiki("Petyr_Baelish", "sauv.json")
+    # svg_wiki(SRC, "sauv.json")
     # s = "https://iceandfire.fandom.com/wiki/Special:Search?query=liste&scope=internal&navigationSearch=true"
-    # print(s)
+    wiki = chg_disco("sauv.json")
+    provenance = parcours_largeur(wiki)
+    plus_court_chemin_rec("Dorne", "Rhaego", provenance)
